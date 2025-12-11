@@ -127,6 +127,8 @@
                         visual.style.opacity = '1';
                         const icons = ['🕒', '🏛️', '✨'];
                         visual.textContent = icons[i] || '';
+                        // warm remaining images for this project on hover
+                        prefetchRemaining(projectData[i].imagePrefix);
                     }
                 });
 
@@ -145,6 +147,54 @@
                 // image prefix to look for in /images — convention: project-01-1.jpg
                 imagePrefix: `project-${String(i+1).padStart(2,'0')}`
             }));
+
+            // Hybrid preload state
+            const preloadedFirst = {}; // prefix -> first image url
+            const preloadedAll = {};   // prefix -> array of other image urls (2..N)
+            const prefetching = {};    // prefix -> boolean
+
+            // Try loading variants (.jpg then .png) for a given prefix and index. Resolves url or null.
+            function tryLoadVariant(prefix, n){
+                const exts = ['jpg','png'];
+                return new Promise((resolve) => {
+                    let i = 0;
+                    function next(){
+                        if (i >= exts.length) return resolve(null);
+                        const url = `images/${prefix}-${n}.${exts[i]}`;
+                        const img = new Image();
+                        img.onload = () => resolve(url);
+                        img.onerror = () => { i++; next(); };
+                        img.src = url;
+                    }
+                    next();
+                });
+            }
+
+            // Preload the first image for every project (cheap, small number)
+            function preloadFirstImages(){
+                projectData.forEach(d => {
+                    tryLoadVariant(d.imagePrefix, 1).then(url => {
+                        if (url) preloadedFirst[d.imagePrefix] = url;
+                    });
+                });
+            }
+
+            // Prefetch remaining images (2..6) for a specific project prefix
+            function prefetchRemaining(prefix){
+                if (prefetching[prefix]) return;
+                prefetching[prefix] = true;
+                preloadedAll[prefix] = preloadedAll[prefix] || [];
+                const promises = [];
+                for (let n = 2; n <= 6; n++){
+                    promises.push(tryLoadVariant(prefix, n).then(url => {
+                        if (url) preloadedAll[prefix].push(url);
+                    }));
+                }
+                Promise.all(promises).finally(()=>{ prefetching[prefix] = false; });
+            }
+
+            // Start by preloading the first images
+            preloadFirstImages();
 
             // Modal elements
             const modalOverlay = document.getElementById('projectModal');
@@ -181,10 +231,17 @@
                     clearThumbnails();
                     if (carouselImage) { carouselImage.style.display = 'none'; carouselImage.src = ''; }
                     if (carouselEmpty) { carouselEmpty.style.display = ''; }
-                    // try load images matching prefix, up to 6
-                    loadImagesForProject(data.imagePrefix, 6, (imgs) => {
-                        // ignore if another load started after this one
+                    // If we already have preloaded images, use them immediately (first image + prefetches)
+                    const prefix = data.imagePrefix;
+                    const preFirst = preloadedFirst[prefix] || null;
+                    const preOthers = preloadedAll[prefix] || [];
+                    if (preFirst || preOthers.length){
+                        // ensure this load is still current
                         if (myToken !== loadToken) return;
+                        // assemble ordered images: first then others
+                        const imgs = [];
+                        if (preFirst) imgs.push(preFirst);
+                        imgs.push(...preOthers);
                         currentImages = imgs;
                         currentIndex = 0;
                         if (currentImages.length){
@@ -196,7 +253,26 @@
                             if (carouselEmpty) carouselEmpty.style.display = '';
                             clearThumbnails();
                         }
-                    });
+                        // also, kick off any remaining prefetch to fill gaps
+                        prefetchRemaining(prefix);
+                    } else {
+                        // try load images matching prefix, up to 6
+                        loadImagesForProject(data.imagePrefix, 6, (imgs) => {
+                            // ignore if another load started after this one
+                            if (myToken !== loadToken) return;
+                            currentImages = imgs;
+                            currentIndex = 0;
+                            if (currentImages.length){
+                                if (carouselEmpty) carouselEmpty.style.display = 'none';
+                                if (carouselImage) { carouselImage.style.display = ''; carouselImage.src = currentImages[0]; }
+                                populateThumbnails(currentImages);
+                            } else {
+                                if (carouselImage) carouselImage.style.display = 'none';
+                                if (carouselEmpty) carouselEmpty.style.display = '';
+                                clearThumbnails();
+                            }
+                        });
+                    }
                     if (modalClose) modalClose.focus();
                 } catch (err) {
                     console.error('Failed to open project modal', err);
