@@ -65,6 +65,31 @@
         </div>
     </section>
 
+    <section class="other-projects-section">
+        <div class="section-header">
+            <h2 class="section-title">Other Projects</h2>
+            <div class="section-number">[—]</div>
+        </div>
+        <div class="other-grid">
+            <div class="other-project-card">
+                <img src="images/other-01.jpg" alt="Other Project 1">
+                <div class="card-caption">Other 01</div>
+            </div>
+            <div class="other-project-card">
+                <img src="images/other-02.jpg" alt="Other Project 2">
+                <div class="card-caption">Other 02</div>
+            </div>
+            <div class="other-project-card">
+                <img src="images/other-03.jpg" alt="Other Project 3">
+                <div class="card-caption">Other 03</div>
+            </div>
+            <div class="other-project-card">
+                <img src="images/other-04.jpg" alt="Other Project 4">
+                <div class="card-caption">Other 04</div>
+            </div>
+        </div>
+    </section>
+
     <div class="project-visual" id="projectVisual"></div>
 
     <!-- Project modal (hidden until opened) -->
@@ -80,6 +105,7 @@
                     <img id="carouselImage" src="" alt="Project image">
                     <button class="nav next" id="carouselNext">›</button>
                     <div class="carousel-empty" id="carouselEmpty" style="display:none;color:#888;">Images will be added later.</div>
+                    <div class="thumbnails" id="carouselThumbs" aria-hidden="true"></div>
                 </div>
                 <aside class="modal-side">
                     <div class="desc" id="modalDesc"></div>
@@ -128,6 +154,7 @@
             const modalFooter = document.getElementById('modalFooter');
             const carouselImage = document.getElementById('carouselImage');
             const carouselEmpty = document.getElementById('carouselEmpty');
+            const carouselThumbs = document.getElementById('carouselThumbs');
             const prevBtn = document.getElementById('carouselPrev');
             const nextBtn = document.getElementById('carouselNext');
 
@@ -153,9 +180,11 @@
                         if (currentImages.length){
                             if (carouselEmpty) carouselEmpty.style.display = 'none';
                             if (carouselImage) { carouselImage.style.display = ''; carouselImage.src = currentImages[0]; }
+                            populateThumbnails(currentImages);
                         } else {
                             if (carouselImage) carouselImage.style.display = 'none';
                             if (carouselEmpty) carouselEmpty.style.display = '';
+                            clearThumbnails();
                         }
                     });
                     if (modalClose) modalClose.focus();
@@ -197,6 +226,7 @@
                 if (!currentImages.length || !carouselImage) return;
                 currentIndex = (currentIndex + 1) % currentImages.length;
                 carouselImage.src = currentImages[currentIndex];
+                highlightActiveThumb();
             }
 
             // Attempt to load images with a naming convention: images/{prefix}-{n}.jpg
@@ -223,6 +253,35 @@
                     tryExt();
                 }
                 tryNext(1);
+            }
+
+            function populateThumbnails(urls){
+                clearThumbnails();
+                if (!carouselThumbs) return;
+                urls.forEach((u, idx) => {
+                    const t = document.createElement('img');
+                    t.src = u;
+                    t.alt = `Thumbnail ${idx+1}`;
+                    t.className = 'thumb';
+                    t.addEventListener('click', (e)=>{
+                        currentIndex = idx;
+                        if (carouselImage) carouselImage.src = currentImages[currentIndex];
+                        highlightActiveThumb();
+                    });
+                    carouselThumbs.appendChild(t);
+                });
+                highlightActiveThumb();
+            }
+
+            function clearThumbnails(){
+                if (!carouselThumbs) return;
+                carouselThumbs.innerHTML = '';
+            }
+
+            function highlightActiveThumb(){
+                if (!carouselThumbs) return;
+                const thumbs = carouselThumbs.querySelectorAll('.thumb');
+                thumbs.forEach((t,i)=> t.classList.toggle('active-thumb', i===currentIndex));
             }
         })();
     </script>
