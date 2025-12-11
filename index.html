@@ -164,6 +164,7 @@
 
             let currentImages = [];
             let currentIndex = 0;
+            let loadToken = 0; // incremental token to avoid race conditions from overlapping loads
 
             function openProjectModal(i){
                 try {
@@ -173,8 +174,17 @@
                     modalDesc.textContent = data.description;
                     modalFooter.textContent = `${data.title} • ${data.index+1}`;
                     modalOverlay.classList.add('active');
+                    // Prevent stale results from previous load: increment token and capture
+                    loadToken += 1;
+                    const myToken = loadToken;
+                    // reset UI while loading
+                    clearThumbnails();
+                    if (carouselImage) { carouselImage.style.display = 'none'; carouselImage.src = ''; }
+                    if (carouselEmpty) { carouselEmpty.style.display = ''; }
                     // try load images matching prefix, up to 6
                     loadImagesForProject(data.imagePrefix, 6, (imgs) => {
+                        // ignore if another load started after this one
+                        if (myToken !== loadToken) return;
                         currentImages = imgs;
                         currentIndex = 0;
                         if (currentImages.length){
