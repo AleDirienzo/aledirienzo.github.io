@@ -9,16 +9,6 @@
 <body>
     <nav>
         <div class="logo">Max Ricci</div>
-        <ul class="nav-links">
-            <li><a href="#work">Work</a></li>
-            <li><a href="about.html">About Max</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
-
-    <section class="hero">
-        <h1>PERSONAL PORTFOLIO<br>INDUSTRIAL DESIGN<br>2025-2026</h1>
-        <div class="subtitle">Portfolio 2025</div>
         <div class="hero-meta">
             <div>
                 <span>Based in</span>
@@ -28,17 +18,23 @@
                 <span>Discipline</span>
                 Design / Art
             </div>
-            <div>
-                <span>Status</span>
-                Available
-            </div>
         </div>
+    </nav>
+
+    <section class="hero">
+        <h1>PERSONAL PORTFOLIO<br>INDUSTRIAL DESIGN<br>2025-2026</h1>
+        
+        <ul class="nav-links">
+            <li><a href="#work">Work</a></li>
+            <li><a href="about.html">About Max</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
     </section>
 
     <section class="projects-section" id="work">
         <div class="section-header">
             <h2 class="section-title">Selected Works</h2>
-            <div class="section-number">[03]</div>
+            <div class="section-number">[05]</div>
         </div>
         
         <div class="projects-list">
@@ -60,6 +56,20 @@
                 <div class="project-number">[03]</div>
                 <div class="project-title">MOI</div>
                 <div class="project-description">Visual Diary</div>
+                <div class="project-year">2025</div>
+            </div>
+            
+            <div class="project-item">
+                <div class="project-number">[04]</div>
+                <div class="project-title">SINK DISH</div>
+                <div class="project-description">Domestic Object</div>
+                <div class="project-year">2025</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-number">[05]</div>
+                <div class="project-title">AI SPONGE</div>
+                <div class="project-description">Generative Tool</div>
                 <div class="project-year">2025</div>
             </div>
         </div>
@@ -125,7 +135,7 @@
                 project.addEventListener('mouseenter', () => {
                     if (window.innerWidth > 1024) {
                         visual.style.opacity = '1';
-                        const icons = ['🕒', '🏛️', '✨'];
+                        const icons = ['🕒', '🏛️', '✨', '🥣', '🤖'];
                         visual.textContent = icons[i] || '';
                         // warm remaining images for this project on hover
                         prefetchRemaining(projectData[i].imagePrefix);
@@ -301,6 +311,20 @@
 
             if (prevBtn) prevBtn.addEventListener('click', showPrev);
             if (nextBtn) nextBtn.addEventListener('click', showNext);
+
+            // Smooth slide to Selected Works when clicking "Work"
+            (function(){
+                const workAnchors = document.querySelectorAll('.nav-links a[href="#work"]');
+                const nav = document.querySelector('nav');
+                workAnchors.forEach(a => a.addEventListener('click', (e)=>{
+                    e.preventDefault();
+                    const target = document.querySelector('#work');
+                    if (!target) return;
+                    const navHeight = nav ? nav.offsetHeight : 0;
+                    const top = target.getBoundingClientRect().top + window.scrollY - navHeight - 8;
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }));
+            })();
 
             function showPrev(){
                 if (!currentImages.length || !carouselImage) return;
