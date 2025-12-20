@@ -34,12 +34,35 @@ nav {
     border-bottom: 1px solid var(--border);
 }
 
+.brand{ display:flex; gap:1rem; align-items:center }
+.logoMAX{ font-size:0.95rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent) }
+
 .logo {
     font-size: 1rem;
     font-weight: 400;
     letter-spacing: 2px;
     text-transform: uppercase;
 }
+
+.logo {
+    text-decoration: none;
+    color: var(--text);
+    display: inline-block;
+    position: relative;
+    padding-bottom: 2px;
+    transition: color 0.3s, border-color 0.3s;
+}
+.logo::after{
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.3s;
+}
+.logo:hover::after{ width: 100%; }
 
 .nav-links {
     display: flex;
@@ -89,10 +112,23 @@ nav {
     justify-content: center;
     padding: 0 5%;
     border-bottom: 1px solid #333;
+        /* Hero Inner Styles */
+    .hero-inner {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        max-width: 1200px;
+    }
+    .hero-logo {
+        width: 120px;
+        height: auto;
+        object-fit: contain;
+        display: block;
+    }
 }
 
 .hero h1 {
-    font-size: 5rem;
+    font-size: 6.5rem;
     font-weight: 400;
     margin-bottom: 2rem;
     letter-spacing: -2px;
@@ -142,7 +178,7 @@ nav {
 }
 
 .section-title {
-    font-size: 1rem;
+    font-size: 2rem;
     font-weight: 400;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -177,9 +213,9 @@ nav {
 }
 
 .project-number {
-    font-size: 0.85rem;
+    font-size: 10rem;
     color: var(--muted);
-    letter-spacing: 1px;
+    letter-spacing: 3px;
 }
 
 .project-title {
@@ -434,6 +470,14 @@ nav {
     position: absolute;
     inset: 0;
     display: flex;
+    .hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .hero-logo {
+        width: 80px;
+    }
     align-items: flex-end;
     justify-content: flex-start;
     padding: 1rem;
