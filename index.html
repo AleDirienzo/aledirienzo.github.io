@@ -23,8 +23,8 @@
 
     <section class="hero">
         <div class="hero-inner">
-            <h1>PERSONAL PORTFOLIO<br>INDUSTRIAL DESIGN<br>2025-2026</h1>
-            <img src="images/logoMax.png" alt="Logo Max" class="hero-logo">
+            <h1>PERSONAL PORTFOLIO<br>INDUSTRIAL<br>DESIGN<br>2025-2026</h1>
+            <img src="images/logoMax.jpg" alt="Logo Max" class="hero-logo">
         </div>
         <ul class="nav-links">
             <li><a href="#work">Work</a></li>
@@ -122,19 +122,18 @@
 
             // Basic hover preview (keeps previous behavior)
             projects.forEach((project, i) => {
-                project.addEventListener('mouseenter', () => {
-                    if (window.innerWidth > 1024) {
-                        visual.style.opacity = '1';
-                        const icons = ['🕒', '🏛️', '✨', '🥣', '🤖'];
-                        visual.textContent = icons[i] || '';
-                        // warm remaining images for this project on hover
-                        prefetchRemaining(projectData[i].imagePrefix);
-                    }
-                });
+                    project.addEventListener('mouseenter', () => {
+                        if (window.innerWidth > 1024) {
+                            // show an aesthetic image preview (stacked photos)
+                            const prefix = projectData[i].imagePrefix;
+                            showProjectPreview(prefix);
+                            prefetchRemaining(prefix);
+                        }
+                    });
 
-                project.addEventListener('mouseleave', () => {
-                    visual.style.opacity = '0';
-                });
+                    project.addEventListener('mouseleave', () => {
+                        hideProjectPreview();
+                    });
 
                 project.addEventListener('click', () => openProjectModal(i));
             });
@@ -195,6 +194,31 @@
 
             // Start by preloading the first images
             preloadFirstImages();
+
+            // Helpers to show/hide preview in the fixed panel
+            function showProjectPreview(prefix){
+                if (!visual) return;
+                visual.classList.add('active');
+                // prefer already preloaded images
+                const imgs = [];
+                if (preloadedFirst[prefix]) imgs.push(preloadedFirst[prefix]);
+                if (preloadedAll[prefix] && preloadedAll[prefix].length) imgs.push(...preloadedAll[prefix].slice(0,2));
+                if (imgs.length){
+                    visual.innerHTML = `<div class="preview-stack">${imgs.map((u,idx)=>`<img src="${u}" class="preview p${idx}" alt="preview">`).join('')}</div>`;
+                    return;
+                }
+                // fallback: try to load the first image quickly
+                tryLoadVariant(prefix,1).then(url => {
+                    if (!url){ visual.innerHTML = ''; return; }
+                    visual.innerHTML = `<div class="preview-stack"><img src="${url}" class="preview p0" alt="preview"></div>`;
+                });
+            }
+
+            function hideProjectPreview(){
+                if (!visual) return;
+                visual.classList.remove('active');
+                visual.innerHTML = '';
+            }
 
             // Modal elements
             const modalOverlay = document.getElementById('projectModal');

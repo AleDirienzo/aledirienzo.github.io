@@ -120,7 +120,7 @@ nav {
         max-width: 1200px;
     }
     .hero-logo {
-        width: 120px;
+        width: 180px;
         height: auto;
         object-fit: contain;
         display: block;
@@ -240,21 +240,41 @@ nav {
 
 .project-visual {
     position: fixed;
-    top: 50%;
+    top: 45%;
     right: 5%;
     transform: translateY(-50%);
-    width: 400px;
-    height: 500px;
-    background: var(--panel-strong);
-    border: 1px solid var(--border);
+    width: 420px;
+    height: 320px;
+    background: linear-gradient(180deg,#ffffff,#f7f7f7);
+    color: #111;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 12px 30px rgba(15,20,25,0.5);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transition: opacity 0.25s, transform 0.25s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
+    padding: 14px;
+    border-radius: 6px;
 }
+
+.project-visual.active{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+}
+
+.preview-stack{ position:relative; width:100%; height:100%; }
+.preview-stack img{ position:absolute; right:8px; bottom:8px; width:78%; height:auto; border-radius:6px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 8px 20px rgba(10,12,14,0.35); }
+.preview-stack img.p0{ transform: translate(-6px,-6px) rotate(-2deg); z-index:3 }
+.preview-stack img.p1{ transform: translate(-18px,-18px) rotate(-4deg); z-index:2 }
+.preview-stack img.p2{ transform: translate(-30px,-30px) rotate(-6deg); z-index:1 }
+
+/* Arrow hint on project title */
+.project-title { position: relative }
+.project-title::after{ content: ''; opacity: 0; transition: all 0.2s; position: absolute; right: -36px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size:0.9rem }
+.project-item:hover .project-title::after{ content: '→'; background: var(--accent); color: #fff; opacity: 1; box-shadow: 0 6px 18px rgba(0,0,0,0.35) }
 
 .about-container {
     min-height: 100vh;
